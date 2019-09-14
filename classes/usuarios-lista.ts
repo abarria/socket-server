@@ -32,11 +32,12 @@ export class UsuariosLista {
 
     }
 
+    //OBTENER LISTA DE USUARIOS
     public getLista() {
-        return this.lista;
+        return this.lista.filter( usuario => usuario.nombre !== 'sin-nombre' )
     }
 
-
+    //OBTENER UN USUARIO
     public getUsuario(id: string) {
         return this.lista.find(usuario => usuario.id === id);
     }

@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express'
 import Server from '../classes/server';
+import { Socket } from 'net';
+import { usuariosConectados } from '../sockets/socket';
 
 export const router = Router();
 
 
-router.get('/mensajes', ( req: Request, res: Response ) => {
+router.get('/mensajes', (req: Request, res: Response) => {
 
     res.json({
         ok: true,
@@ -13,16 +15,16 @@ router.get('/mensajes', ( req: Request, res: Response ) => {
 
 });
 
-router.post('/mensajes', ( req: Request, res: Response ) => {
+router.post('/mensajes', (req: Request, res: Response) => {
 
     const cuerpo = req.body.cuerpo;
-    const de     = req.body.de;
+    const de = req.body.de;
 
-    const payload = {de, cuerpo}
+    const payload = { de, cuerpo }
 
     const server = Server.instance;
 
-    server.io.emit( 'mensaje-nuevo', payload )
+    server.io.emit('mensaje-nuevo', payload)
 
 
 
@@ -34,11 +36,11 @@ router.post('/mensajes', ( req: Request, res: Response ) => {
 
 });
 
-router.post('/mensajes/:id', ( req: Request, res: Response ) => {
+router.post('/mensajes/:id', (req: Request, res: Response) => {
 
     const cuerpo = req.body.cuerpo;
-    const de     = req.body.de;
-    const id     = req.params.id;
+    const de = req.body.de;
+    const id = req.params.id;
 
     const payload = {
         de,
@@ -47,7 +49,7 @@ router.post('/mensajes/:id', ( req: Request, res: Response ) => {
 
     const server = Server.instance;
 
-    server.io.in( id ).emit( 'mensaje-privado', payload )
+    server.io.in(id).emit('mensaje-privado', payload)
 
     res.json({
         ok: true,
@@ -57,5 +59,50 @@ router.post('/mensajes/:id', ( req: Request, res: Response ) => {
     });
 
 });
+
+
+//servicio para obtener todos los ids de los usuarios
+router.get('/usuarios', (req: Request, res: Response) => {
+
+    const server = Server.instance;
+
+    server.io.clients((err: any, clientes: string[]) => {
+
+        if (err) {
+            return res.json({
+                ok: false,
+                err
+            })
+        }
+
+        res.json({
+            ok: true,
+            clientes
+        });
+
+
+    });
+
+
+
+});
+
+
+//OBTENER USUARIOS Y SUS NOMBRES
+router.get('/usuarios/detalle', (req: Request, res: Response) => {
+
+
+
+
+    res.json({
+        ok: true,
+        clientes: usuariosConectados.getLista()
+    })
+
+
+});
+
+
+
 
 export default router;
